@@ -1,0 +1,74 @@
+// ============================================================================
+// Biblioteca de medidas DAX — Vendas de Postos de Combustível
+//
+// Escritas contra o esquema estrela de sql/schema.sql. Para usar:
+// 1. Abra o Power BI Desktop e importe data/bi_toolkit.db (ou o CSV
+//    exportado por scripts/setup_dados.py) como fonte de dados.
+// 2. Monte os relacionamentos fato_vendas -> dim_tempo/dim_posto/dim_produto
+//    /dim_forma_pagamento pelas chaves *_id (todos 1:N, direção única).
+// 3. Marque dim_tempo[data] como Tabela de Datas (Modelagem > Marcar como
+//    tabela de datas) para as funções de time intelligence funcionarem.
+// 4. Cole cada medida abaixo numa nova medida da tabela fato_vendas.
+// ============================================================================
+
+// ---------- Medidas base ----------
+
+Total de Vendas =
+SUM ( fato_vendas[valor_total] )
+
+Total de Litros Vendidos =
+CALCULATE (
+    SUM ( fato_vendas[quantidade] ),
+    dim_produto[unidade] = "litro"
+)
+
+Margem Total =
+SUM ( fato_vendas[margem_total] )
+
+Margem % =
+DIVIDE ( [Margem Total], [Total de Vendas] )
+
+Ticket Médio =
+DIVIDE ( [Total de Vendas], DISTINCTCOUNT ( fato_vendas[venda_id] ) )
+
+Qtd. Transações =
+COUNTROWS ( fato_vendas )
+
+// ---------- Time intelligence (requer dim_tempo marcada como tabela de datas) ----------
+
+Vendas MTD =
+TOTALMTD ( [Total de Vendas], dim_tempo[data] )
+
+Vendas Mês Anterior =
+CALCULATE ( [Total de Vendas], DATEADD ( dim_tempo[data], -1, MONTH ) )
+
+Vendas MoM % =
+VAR VendasAtual = [Total de Vendas]
+VAR VendasAnterior = [Vendas Mês Anterior]
+RETURN
+    DIVIDE ( VendasAtual - VendasAnterior, VendasAnterior )
+
+Vendas Mesmo Período Ano Anterior =
+CALCULATE ( [Total de Vendas], SAMEPERIODLASTYEAR ( dim_tempo[data] ) )
+
+Vendas YoY % =
+VAR VendasAtual = [Total de Vendas]
+VAR VendasAnoAnterior = [Vendas Mesmo Período Ano Anterior]
+RETURN
+    DIVIDE ( VendasAtual - VendasAnoAnterior, VendasAnoAnterior )
+
+// ---------- Ranking / comparativos ----------
+
+Ranking Posto por Vendas =
+RANKX ( ALL ( dim_posto[nome] ), [Total de Vendas], , DESC )
+
+% do Total da Rede =
+DIVIDE ( [Total de Vendas], CALCULATE ( [Total de Vendas], ALL ( dim_posto ) ) )
+
+// ---------- Governança de acesso (usadas no relatório de administração) ----------
+
+Qtd. Usuários com Acesso Externo =
+CALCULATE (
+    DISTINCTCOUNT ( relatorio_acessos[usuario] ),
+    relatorio_acessos[acesso_externo] = TRUE ()
+)
