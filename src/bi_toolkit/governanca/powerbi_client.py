@@ -27,7 +27,7 @@ class PowerBICredenciais:
     client_secret: str
 
     @classmethod
-    def do_ambiente(cls) -> "PowerBICredenciais":
+    def do_ambiente(cls) -> PowerBICredenciais:
         """Lê as credenciais de variáveis de ambiente (ver .env.example)."""
         return cls(
             tenant_id=os.environ["POWERBI_TENANT_ID"],

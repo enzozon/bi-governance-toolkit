@@ -80,7 +80,9 @@ def render_graficos(df: pd.DataFrame) -> None:
     col_esq.plotly_chart(fig_bandeira, use_container_width=True)
 
     por_produto = df.groupby("produto", as_index=False)["valor_total"].sum()
-    fig_produto = px.pie(por_produto, names="produto", values="valor_total", title="Receita por produto")
+    fig_produto = px.pie(
+        por_produto, names="produto", values="valor_total", title="Receita por produto"
+    )
     col_dir.plotly_chart(fig_produto, use_container_width=True)
 
     top_postos = (
@@ -102,7 +104,9 @@ def render_filtros(df: pd.DataFrame) -> pd.DataFrame:
         selecionadas = st.multiselect("Bandeira", bandeiras, default=bandeiras)
 
         data_min, data_max = df["data"].min(), df["data"].max()
-        intervalo = st.date_input("Período", (data_min, data_max), min_value=data_min, max_value=data_max)
+        intervalo = st.date_input(
+            "Período", (data_min, data_max), min_value=data_min, max_value=data_max
+        )
 
     filtrado = df[df["bandeira"].isin(selecionadas)]
     if isinstance(intervalo, tuple) and len(intervalo) == 2:
