@@ -1,5 +1,7 @@
 # BI Governance Toolkit
 
+[![CI](https://github.com/enzozon/bi-governance-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/enzozon/bi-governance-toolkit/actions/workflows/ci.yml)
+
 ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
 ![Power BI](https://img.shields.io/badge/Power_BI-F2C811?style=flat-square&logo=powerbi&logoColor=black)
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white)
